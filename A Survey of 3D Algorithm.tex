@@ -1,0 +1,64 @@
+\documentclass[11pt,openany]{book} 
+% With this "openay" option, Latex will not insert any blank pages into the documents. Otherwise, it will make sure the first page is on the even number pages.
+\usepackage{geometry}        
+\geometry{letterpaper}    
+\usepackage[parfill]{parskip}  
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{epstopdf}
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+
+\usepackage[colorlinks=true, pdfstartview=FitV, linkcolor=blue, 
+            citecolor=blue, urlcolor=blue]{hyperref}
+
+%\includeonly{Chapter1}
+
+
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}{Definition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{exercise}{Exercise}
+\newtheorem{remark}{Remark}
+\newtheorem{example}{Example}
+\newtheorem{warning}{Warning}
+
+\def\grad{ \mbox{grad}}
+\def\curl{ \mbox{curl}}
+\def\div{ \mbox{div}}
+\def\U{\ensuremath {\cal U}}
+\def\S{\ensuremath {\cal S}}
+\def\V{\ensuremath {\cal V}}
+\def\R{\ensuremath {\cal R}}
+\def\tr{\ensuremath {\mbox{tr}}}
+
+
+
+
+% ------------------- Title and Author -----------------------------
+\title{A Survey of 3D Algorithm}
+\author{Songkun Chen}
+\begin{document}
+
+
+\frontmatter
+\maketitle
+\chapter*{}
+Special Thanks must go to ChatGPT! Many of the contents within this book is finished by ChatGPT with my prompts.
+
+\tableofcontents
+
+\include{Chapter1}
+\include{Chapter2}
+\include{Chapter3}
+\include{Chapter4}
+
+
+\bibliographystyle{plain-annote}
+\bibliography{mybibliography}
+
+
+\end{document}
+%\end
+
