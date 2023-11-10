@@ -1,0 +1,79 @@
+% Activate the following line by filling in the right side. If for example the name of the root file is Main.tex, write
+% "...root = Main.tex" if the chapter file is in the same directory, and "...root = ../Main.tex" if the chapter is in a subdirectory.
+ 
+%!TEX root =  ../A Survey of 3D Algorithm
+
+\chapter[Preface]{A Narrow Introduction to 3D world}
+% 这是开始尝试用程序员的方式写工作记录的第一天。2023-11-06
+人眼采集视觉信息对物体进行描述，可以从颜色/亮度/大小/等不同维度展开，这些因素会被相机以怎样的方式采集和呈现呢？\par
+当人获取2D/3D相机的信息后，又需要以怎样的方式对像素数据加以处理，才能获得人能理解和接受的数据呢？
+要解答这些问题，就必须要理解3D信息是怎样被照相机获取的，Depth相机相较于常规的RGB相机，又增添了怎样的处理流程？从3D高维数据降低到2D维度时，哪些信息会有丢失或损毁？\par
+为了回答这些问题，就需要对相机成像的过程进行深入了解，知道相机内参/外参/畸变参数的物理含义，知道相机畸变校正/极线校正的基本过程，了解2D图像和空间点云的对应关系。这些内容，在后续这些章节中，会逐一展开详细叙述。
+
+\section{Introduction}
+本章节，将从几何光学的角度对基础内容进行介绍。在单目几何中，依托小孔成像过程，介绍齐次坐标，相机内参，畸变参数，外参等基础概念。\par
+在双目几何中，待介绍的内容待定。\par
+在对极几何中，会重点介绍对极点，对极线，基础矩阵，本质矩阵等概念。\par
+在相机标定中，会综合运用前述章节的知识，以相机的标定过程为例，展示前述知识的实际应用。
+\section{Single View Geometry}
+在小孔成像过程中，常见的过程可以表示如下:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.3]{Chapter1/PinholeCameraModel.png}
+\caption{Pinhole Camere Model}
+\end{figure}
+在世界坐标系下空间点\[X_w=[x,y,z]\]
+从世界坐标系转化到Camera坐标系下为 \[X_c = RX_w+T\]
+其中$R = R_cw$，代表从世界坐标系转化到Camera坐标系。\par
+相机内参为
+\[ K = \left[ \begin{array}{ccc} fx & 0 & cx \\ 0 & fy & cy  \\ 0 & 0 & 1 \end{array}\right] \]
+投影到sensor上的像素坐标表示为\[\begin{array}{cc}u=x/z*fx+cx \\  v = y/z*fx+cy\end{array}\]
+在通常的分析中，为了矩阵表达的简洁，采用齐次坐标的形式表达上述投影过程:
+\[ \left[\begin{array}{ccc} u\\v\\1\end{array}\right]
+=
+K \left[ \begin{array}{c|c} R & T \end{array}\right] P_w
+=
+\left[ \begin{array}{cccc} fx & 0 & cx & 0 \\ 0 & fy & cy & 0 \\ 0 &  0 &  1 & 1\end{array}\right]
+\left[ \begin{array}{cc} R & T\\0 &1 \end{array}\right]
+\left[ \begin{array}{c} x/z \\y/z\\1\\1\end{array} \right]
+\]
+可以看到，在3维空间点投影到2维图像的过程中，Z的维度信息在在Sensor中是丢失的，即：3维空间中的点，投影到sensor上是明确的一个像素位置；但是sensor上的1个像素，对应到3D空间中
+时，不能明确定义出一个点，只能定义出一条直线。为了更清晰地说明这个过程，我们可以写出从2D像素点逆投影到3D空间的过程如下：
+\[
+\begin{array}{ccc} x&=& P_{proj}X_c \\ X_c^{length less} & = &P_{proj}^\dagger x \end{array}
+\]
+其中，$P_{proj}^\dagger$ 是投影矩阵$K \left[ \begin{array}{c|c} R & T \end{array}\right] $的广义逆，得到的只能是$\left[ \begin{array}{c} x/z \\y/z\\1\\1\end{array} \right]$形式的沿Z轴归一化的一个结果，即为空间中的一条射线。
+这条射线已知穿过空间中的2个点：sensor对应的光心$C$和该像素点$[u , v]$，根据这两个点，即可得到空间中射线的坐标。假定已知光心为$C=[x_c, y_c, z_c]$，sensor像素坐标下下某点为$x=[u ,v, 1]$，首先将光心坐标转化为它在sensor坐标系下的坐标$C = [c_x, c_y , 1]$，这两个点都在$x$做逆向投影到3D空间形成的射线上。这条直线，在后续分析对极几何相关内容时，会有较大的用处。
+\section{Epipolar Geometry}
+对极几何，这个问题有一个非常典型的场景：对应同一个物体，用人的左右眼分别去看，会发现物体在“跳动”，物体和人眼的距离越近，这种“跳动”就越发显著。从相机成像的角度来看，我们不妨假设这样一个场景：使用同一台相机，在两个不同的位置拍摄同一个物体，拍摄出来的图片，会有怎样的特征？这个问题的答案，就在本节中。
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.3]{Chapter1/DescriptionOfEpio.jpeg}
+\caption{Description of Epipolar Geometry}
+\end{figure}
+在图中，内参相同的两个相机，光心分别为$C$和$C'$。它们同时对空间点$X$成像，对应在像素上的位置分别为$x$和$x'$。$C$h和$C'$的连线与各自sensor平面的交线为$e$和$e'$。在暂时忽略相机畸变的情形下，根据“光沿直线传播”的假设下，根据几何知识，不难推导出以下结论：
+\begin{enumerate}
+\item $e$和$e'$是两个相机在彼此眼中的位置，这两个点也被称作“对极点”；
+\item $line C-->X$即为$x$逆投影到空间中时对应的射线，它在相机$C'$中对应与$line e' --> x'$；同样地，$line C' --> X$在$C$中成像为 $line e-->x$。 这两条线，被称为“对极线”；
+\item 对极点的位置，是由两个相机的内参和外参确定的；对极线的位置，是由被测点$X$决定的，但是众多对极线会相交于对极点；
+\item 光心，待测物点$X$和对应的对极线，这些都是共面的；
+\end{enumerate}
+在这样的一个“双目”系统中，1个空间点唯一对应到sensor中的一个pixel；但是由于从该像素逆映射到3D空间时，由于深度信息$Z$的丢失，逆映射不能得到唯一的一个点，而是会得到一条直线。在“共面”这样的一个约束下，这条直线会唯一地映射到一条“对极线”上。对极几何，研究的就是从像素点$x$到对极线$l'$的映射关系，描述这种映射关系的矩阵，就称为基础矩阵（Fundamental Matrix，F）和本质矩阵（Essential Matrix，E）。\par
+从几何角度了解了对极几何的概念，接下来，让我们用数学语言，解析地介绍这种“共面”约束，并展示$F$和$E$的推导过程。
+\begin{enumerate}
+\item 一些基础引理介绍
+	\begin{enumerate}
+		\item 空间直线$ax+by+c=0$，可以用向量$L = \left[ \begin{array}{ccc} a & b & c \end{array} \right]^{T}$表达；
+		\item 空间中一个点$X=  \left[ \begin{array}{ccc} x & y & 1 \end{array} \right]^{T}$在直线$L$上，等价于$X^{T}L=0$；
+		\item 空间直线$L_1$和$L_2$相交，交点的坐标可以表示为$L_1^{\bigwedge} L_2$; 其中$L_1^{\bigwedge}$ 代表由$L_1$张成的反对称矩阵；
+		\item 经过空间中两点$X_1$和$X_2$的直线$L$可以表达为这两个点的叉乘，即$X_1^{\bigwedge} X_2$，其中$X_1^{\bigwedge}$ 代表由$X_1$张成的反对称矩阵；
+	\end{enumerate}
+
+
+\item “逆投影”射线的表达
+\item 依据“共面”构造约束条件
+\end{enumerate}
+\section{Dual View Geometry}
+\section{Camera Calibration}
+
+
