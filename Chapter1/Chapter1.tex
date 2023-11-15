@@ -65,14 +65,43 @@ K \left[ \begin{array}{c|c} R & T \end{array}\right] P_w
 	\begin{enumerate}
 		\item 空间直线$ax+by+c=0$，可以用向量$L = \left[ \begin{array}{ccc} a & b & c \end{array} \right]^{T}$表达；
 		\item 空间中一个点$X=  \left[ \begin{array}{ccc} x & y & 1 \end{array} \right]^{T}$在直线$L$上，等价于$X^{T}L=0$；
-		\item 空间直线$L_1$和$L_2$相交，交点的坐标可以表示为$L_1^{\bigwedge} L_2$; 其中$L_1^{\bigwedge}$ 代表由$L_1$张成的反对称矩阵；
-		\item 经过空间中两点$X_1$和$X_2$的直线$L$可以表达为这两个点的叉乘，即$X_1^{\bigwedge} X_2$，其中$X_1^{\bigwedge}$ 代表由$X_1$张成的反对称矩阵；
+		\item 空间直线$L_1$和$L_2$相交，交点的坐标可以表示为$L_1^{\wedge} L_2$; 其中$L_1^{\wedge}$ 代表由$L_1$张成的反对称矩阵；
+		\item 经过空间中两点$X_1$和$X_2$的直线$L$可以表达为这两个点的叉乘，即$X_1^{\wedge} X_2$，其中$X_1^{\wedge}$ 代表由$X_1$张成的反对称矩阵；
+		\item 经过空间中两点$X_1$和$X_2$的直线$L$可以表示为相应两个向量的加权和，即$L = \lambda X_1 + (1-\lambda )X_2$；在齐次坐标下，它可以被继续简化为$L =X_1 + \lambda X_2$，原因是齐次坐标下深度Z可以从任意非零值缩放至1，则权重也可以表达为$L =\left(X_1 + \lambda X_2\right)/\left(1+\lambda\right)$
 	\end{enumerate}
 
 
-\item “逆投影”射线的表达
-\item 依据“共面”构造约束条件
+\item “逆投影”射线及其在右侧Camera的投影线的表达\par
+	\begin{enumerate}
+	\item 此前介绍了某像素x的“逆投影”为$P_{proj}^\dagger x $。则通过左侧Camera1的像素$x$的逆投影点和光心$C$的直线可以表示为$P_{proj1}^\dagger x  + \lambda C$，其中$x$和$ c$都是齐次坐标形式。
+	\item 逆投影点和光心C在右侧Camera成像得到的点为$P_2 P_{proj1}^\dagger x$h和$P_2 \lambda C$，其中$P_2 \lambda C=e'$
+	\item 这两个点在右侧Camera的Sensor上投影得到的直线可以表示为$e'^{\wedge}(P_2 P_{proj1}^\dagger) x$;
+	\end{enumerate}
+	到这里，就已经完成了从在对极几何中，一个sensor的像素点和另一个sensor上的对极线之间的映射关系，这个映射关系被定义为基础矩阵（Fundamental Matrix)，写为$F=e'^{\wedge}(P_2 P_{proj1}^\dagger) $
 \end{enumerate}
+根据前述引理内容，对$F$的具体内容详细展开。假定存在两个相机，光心分别为$C_1 , C_2$，其内参矩阵分别为$K_1, K_2$。两个相机之间的外参可以表示为$R, T$，且$X_2=RX_1+T$，即R为$R_{12}$，代表从Camera2到Camera1的旋转。为了分析方便，不妨使世界坐标系和Camera1的坐标系重合。\par
+假定空间中存在一个物点$X$，它在两个相机内的投影分别为$x_1, x_2$。参考前述引理内容，可以有如下结论：
+\begin{enumerate}
+\item $C_1=\left[ \begin{array}{c} \widetilde{0} \\ 1 \end{array} \right]$，$C_2=\left[ \begin{array}{c}  -R^TT\\1\end{array} \right]$
+\item $x_1=K_1 \left[ \begin{array}{c|c} I & \widetilde{0} \end{array}\right]X$是Camera1坐标系下的投影像素的坐标
+\item $x_2=K_2 \left[ \begin{array}{c|c} R & T\end{array}\right]X$是Camera2坐标系下的投影像素的坐标；
+\item $C_1$在Camera2下的投影点为$e_2$，可以表示为$e_2=K_2 \left[ \begin{array}{c|c} R & T\end{array}\right]C_1=K_2T$；
+\item $C_2$在Camera1下的投影点为$e_1$，可以表示为\[e_1=K_1 \left[ \begin{array}{c|c} I & \widetilde{0} \end{array}\right]\left[ \begin{array}{c}  -R^TT\\1\end{array} \right]=-K_1R^TT\]
+\item $P_1=K_1 \left[ \begin{array}{c|c} I & \widetilde{0} \end{array}\right]$，$P_1^{^\dagger}= K_1^{-1}$是$P_1$的广义逆；
+\item $P_2=(K_2T)^{\wedge}(K_2 \left[ \begin{array}{c|c} R & T\end{array}\right]$
+\item 根据前述引理可得：\[F=e'^{\wedge}(P_2 P_{proj1}^\dagger) 
+	=(K_2T)^{\wedge}(K_2 \left[ \begin{array}{c|c} R & T\end{array}\right]) \left[ \begin{array}{c}K_1^{-1}\\ \widetilde{0} \end{array}\right]
+	=(K_2T)^{\wedge}K_2RK_1^{-1}\]
+\item 考虑到当前分析中，相关坐标都是在齐次坐标下的，即深度值可以scale到任意数值；利用这一特性，可以对上述表达式中设计到叉乘的计算进行如下简化：
+\begin{enumerate}
+\item  $(K_2T)^{\wedge}=K_2^{-T}T^{\wedge}K_2{-1}$，则\[ F=K_2^{-T}T^{\wedge}RK_1^{-1}\]。如果在归一化的齐次坐标下再次进行上述分析，可以知道$K_1=K_2=I$，此时\[F=T^{\wedge}R\]，它也被称为本质矩阵$(EssentialMatrix，E)$。归一化的齐次坐标坐标，齐次坐标是指深度被缩放至1；归一化则是指将像素坐标根据内参进行缩放，形式为$ x=(u-c_x)/f_x, y =(v-c_y)/f_y$。
+\item $\left[ R^TT\right]^{\wedge}=R^TT^{\wedge}R$，即$R\left[ R^TT\right]^{\wedge}=T^{\wedge}R$。从而可以将F的形式调整如下：\[F=K_2^{-T}R[R^TT]^{\wedge} K_1^{-1}\]
+\item $[T]^{\wedge}M=M^{-T}[M^{-1}T]^\wedge$,所以$[R^TT]^{\wedge} K_1^{-1}=K_1^T[K_1R^TT]^\wedge$，此时可以给出根据另一个对极点推导出的基础矩阵，形式为
+\[F=-K_2^{-T}RK_1^T[K_1R^TT]^\wedge=-K_2^{-T}RK_1^Te_1^\wedge\]
+\textcolor{red}{此处，关于负号的处理，尚待给出详细分析。}
+\end{enumerate}
+\end{enumerate}
+到这里，就完成了基础矩阵$F$的推导，展示了根据对极点计算$F$的形式，以及根据相机外参计算$F$的形式。这些不同的形式，对应着$F$和$E$矩阵的不同求解和应用方式。在后续的双目几何和相机标定流程中，会对这些形式进行相对详细的介绍。
 \section{Dual View Geometry}
 \section{Camera Calibration}
 

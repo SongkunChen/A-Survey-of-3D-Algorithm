@@ -1,7 +1,7 @@
 % Activate the following line by filling in the right side. If for example the name of the root file is Main.tex, write
 % "...root = Main.tex" if the chapter file is in the same directory, and "...root = ../Main.tex" if the chapter is in a subdirectory.
  
-%!TEX root =  A Survey of 3D Algorithm
+%!TEX root =  ../A Survey of 3D Algorithm
 
 \chapter[Reconstruction the 3D world]{Different Mothods of 3D Reconstruction}
 
@@ -11,6 +11,9 @@
 \subsection{Coded Light}
 \section{Time of Flight}
 \subsection{iToF}
+\subsubsection{温漂标定与多模}
+在ToF模组中，温度漂移指的是模组的测量值随温度变化而波动，通常来说这种现象用1次或2次函数，是可以较准确进行描述的。在校正ToF模组的深度测量结果时，首先对初始测量结果进行温度补偿，是一个标准步骤。\par
+但是在mToF模组中，温漂标定这个过程，本身会受到“多模”问题的影响。在计算温漂系数时，各个温度
 \subsection{pToF}
 \subsection{dToF}
 
